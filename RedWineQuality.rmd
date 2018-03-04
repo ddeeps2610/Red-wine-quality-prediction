@@ -5,6 +5,10 @@ date: "February 25, 2018"
 output: html_document
 ---
 
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
 # Load all required libraries
 ```{r}
 library(ggplot2)
@@ -26,14 +30,15 @@ str(wine)
 ```{r, echo=FALSE}
 summary(wine)
 ```
-d
+
 The dataset contains 11 quantitative variables with 1599 observations. The output is a qualitative variable.
 
 
 ## Analyze the Output Variable(Quality) distribution 
 ```{r, echo=FALSE}
-ggplot(data = wine, aes(quality)) + geom_histogram()
+ggplot(wine, aes(x=factor(quality))) + geom_bar()
 ```
+
 
 From the summary and quality histogram, the quality distribution looks to be normal with mean between 5 and 6 and median at 6.There are no records for quality 9 and 10. As such quality 8 is the highest grade of red wine available in the dataset. The lowest quality seems to be 3. Also, there are a lot of data points for quality 5 and 6 and very few for others.
 
@@ -59,6 +64,12 @@ qplot(data=wine, x=quality.factor, y=fixed.acidity, geom = 'boxplot')
 
 Looks like the fixed.acidity are in the similar ranges. Fixed.acidity for quality 8 and 3 looks very similar from the box plots. Doesn't look like fixed.acidity has any impact on the quality.
 
+```{r, echo=FALSE}
+qplot(data=wine, fixed.acidity, binwidth=0.5) + facet_wrap(~quality.factor)
+```
+
+As can be seen from the above plot, there are lot of data points for quality 5 and 6. Very few for quality 3,4 and 8. The histogram for quality 5 and 6 also looks quite similar.
+
 
 #### Volatile.acidity
 ```{r Volatile acidity vs Quality, echo=FALSE}
@@ -66,6 +77,12 @@ qplot(data = wine, x=quality.factor, y=volatile.acidity, geom='boxplot')
 ```
 
 Looks like higher the volatile.acidity lower the quality and vice versa. This is in agreement with the description. Higher amount of acetic acid in wine leads to unpleasant, vinegar taste. This is one of the good indicator of wine quality. Although there are some datapoints with lower volatile.acidity in lower quality, those data points could be affected by other variables.
+
+```{r, echo=FALSE}
+qplot(data = wine, x=volatile.acidity) + facet_wrap(~quality.factor)
+```
+
+In this histogram also we can see that there are few data points for quality 3,4 and 8 while large data points for 5 and 6. We can also see the gradual shift of the median between quality 5, 6 and 7. 
 
 
 #### Citric.acid
@@ -75,58 +92,138 @@ qplot(data=wine, x=quality.factor, y=citric.acid, geom = 'boxplot')
 
 In general, higher citric.acid seems to be good for wine. 0.3 to 0.53 seems to be good amount of citric.acid in wine.
 
+```{r, echo=FALSE}
+qplot(data = wine, x=citric.acid, binwidth=0.05) + facet_wrap(~quality.factor)
+```
+
+Citric acid distribution seems to be bimodal for quality 5,6, and 7. Also, second peak seems to be shifting towards right from 0.25 for quality 5 to .4 for quality 7.
 
 #### Residual.sugar
 ```{r Residual Sugar vs. Quality, echo=FALSE}
 qplot(data=wine, quality.factor, residual.sugar, geom='boxplot')
-qplot(data=wine, quality.factor, residual.sugar, geom='boxplot') + coord_cartesian(ylim=c(0,6))
+```
+
+The interquantile bands are very close. It'd be good to limit the range and observe them.
+
+```{r, echo=FALSE}
+qplot(data=wine, quality.factor, residual.sugar, geom='boxplot') + 
+  coord_cartesian(ylim=c(0,4))
 ```
 
 Residual sugars seems to be in the same concentrations for each quality. There are no sweet wines with sugar concentration greater than 45 grams/liter in this dataset. It'd be interesting to see how red sweet wines are rated.
+
+```{r, echo=FALSE}
+qplot(data=wine, x=residual.sugar) + facet_wrap(~quality.factor)
+```
+
+As seen before, most of the data points are for quality 5 and 6. Both of these plots seem to have normal distribution with peak at 2.
 
 
 #### Chlorides 
 ```{r Chlorides vs. Quality, echo=FALSE}
 qplot(data=wine, quality.factor, chlorides, geom='boxplot')
+```
+
+Outliers are way outside the interquantile range. Need to limit the range and observe the dynamics of the interquantile range across quality grades.
+
+```{r, echo=FALSE}
 qplot(data=wine, quality.factor, chlorides, geom='boxplot') + ylim(0,0.2)
 ```
 
-Although chlorides median concentrations and interquantile ranges seems to be in similar ranges, 0.06 - 0.075 seems to be a good concentration for good quality wine(from quality 8 chart). However, there is no discernible relation of chloride on quality.
+The median seems to be shifting downward from quality 3 to 8. However, there is a huge overlap of interquantile range across all quality grades. Also, the range is narrowing from lower to higher quality. This may also be because of lack data points. 
+
+```{r, echo=FALSE}
+qplot(data=wine, x=chlorides) + facet_wrap(~quality.factor)
+```
+
+Most data points across different quality grades lie within 0.2 with peak at 0.1.
+
 
 #### Free.sulfur.dioxide
 ```{r Free Sulfur dioxide, echo=FALSE}
 qplot(data=wine, quality.factor, free.sulfur.dioxide, geom='boxplot')
 ```
 
-There is no discernible relation between free sulfur concentration and quality. 
+This is quite a weird plot with median increasing from quality 3 to 5 and going down from quality 5 to 8. May be the histogram can help analyze the distribution. 
+
+```{r, echo=FALSE}
+qplot(data=wine, x=free.sulfur.dioxide) + facet_wrap(~quality.factor)
+```
+
+The weird shift in the median seems to be due to lack of datapoints. The histogram for quality 5 and 6 seems to be similar. Lets analyze histogram by changing the y scale to log.
+
+```{r, echo=FALSE}
+qplot(data=wine, x=free.sulfur.dioxide) + 
+  facet_wrap(~quality.factor) + 
+  scale_y_log10()
+```
+
+In the above plot, we can clearly see the counts of differnt bins of free sulfur dioxide values across differnt quality grades. We can see there are very few data points for quality 3, 4 and 8. We cannot rely on such distributions. However, from quality 5,6, and 7, there doesn't seem to be any shift in trends. 
+
+Also, as per description, free SO2 > 50 ppm would be evident in taste. So, this should affect the wine quality negatively. Unfortunately, there are no many data points with free SO2>50ppm. So, we can't confirm this statement with the available data points. Also, within the free SO2>50ppm range, because of above observations, we can't identify any relation between free sulfur concentration and quality. 
+
 
 #### Total.sulfur.dioxide
 ```{r Total Sulfur dioxide vs. Quality, echo=FALSE}
 qplot(data=wine, quality.factor, total.sulfur.dioxide, geom='boxplot')
 ```
 
-Both, free sulfur dioxide and total sulfur dioxide seems to have no impact on quality. As per description, free SO2 > 50 ppm would be evident in taste. This would be bad. But, such data points seems to be having higher quality(5) than lower concentrations(quality=3). Also, there is no indication of the best concentration of SO2 for higher quality. I guess even smaller quantity is good enough to prevent microbial growth and oxidation.
+Again, we can see the similar trend in median as we saw above. This can be very misleading. Lets look at the histogram.
+
+```{r, echo=FALSE}
+qplot(data=wine, x=total.sulfur.dioxide) + facet_wrap(~quality.factor)
+```
+
+As expected, due to lack of data points, the trend we saw in the boxplots is invlaid. Both, free sulfur dioxide and total sulfur dioxide seems to have no impact on quality. We are not ablel to identify the best range of value for these variables for better wine quality due to lack data points and overlap of ranges. I guess, even smaller quantity is good enough to prevent microbial growth and oxidation.
+
 
 #### Density
 ```{r Density vs. Quality, echo=FALSE}
 qplot(data=wine, quality.factor, density, geom='boxplot')
 ```
 
-From the above boxplots, lower the density seems to be better but there is huge overlap of datapoints for all quality grades. 
+From the above boxplots, lower the density seems to be better but there is huge overlap of datapoints for all quality grades. Lets look at the histogram.
+
+```{r, echo=FALSE}
+qplot(data=wine, x=density) + facet_wrap(~quality.factor)
+```
+
+We can't use quality 3,4 and 6 due to insufficient data points. However, we can still see the downward shift in median in quality grades 5,6 and 7.
+
 
 #### pH
 ```{r pH vs. Quality, echo=FALSE}
 qplot(data=wine, quality.factor, pH, geom='boxplot')
 ```
 
-There is significant overlap of pH concentrations on all quality grades. However, there seems to be a small trend in median pH content. Looks like lower pH seems to relate to higher quality. Specificially, 3-3.5 seems to be a good range for quality wine.
+There is significant overlap of pH concentrations on all quality grades. However, there seems to be a small downward trend in median pH content. Looks like lower pH seems to relate to higher quality. Specificially, 3-3.5 seems to be a good range for quality wine.
+
+```{r, echo=FALSE}
+qplot(data=wine, x=pH) + facet_wrap(~quality.factor)
+```
+
+From quality 5,6,and 7, we can see the small downward trend in pH values for better wine quality. While the lower pH seems to be better, I wouldn't expect very acidic wine to be pleasant. With more data points across quality grades we could have probably identified the best range of pH for wine.
+
 
 #### Sulphates
 ```{r, echo=FALSE}
 qplot(data=wine, quality.factor, sulphates, geom='boxplot')
 ```
 
-Sulphates contribute to SO2 which acts as antimicroial and antioxidant. However, SO2 itself was identified as having no significant impact on the quality. On the contrary to the SO2 impact, higher Sulphates concentrations seems to lead to higher quality. Specifically, 0.7-0.8 units seems to be good concentration for quality wine. 
+The interquantile ranges are overshadowed by the outliers. It'd be good to limit the y-axis.
+
+```{r, echo=FALSE}
+qplot(data=wine, quality.factor, sulphates, geom='boxplot') + ylim(0,1)
+```
+
+Sulphates contribute to SO2 which acts as antimicroial and antioxidant. However, SO2 itself was identified as having no significant impact on the quality. On the contrary to the SO2 impact, higher Sulphates concentrations seems to lead to higher quality. Specifically, 0.7-0.8 units seems to be good concentration for quality wine. But can we trust the range from this plot? No, let's look at the histogram.
+
+```{r, echo=FALSE}
+qplot(data=wine, x=sulphates) + facet_wrap(~quality.factor) + scale_y_log10()
+```
+
+Very few data points. The best range that we determined from quality 8 is not valid because of lack of data points. However, from quality 5,6 and 7, range seems to be 0.5 to 1.
+
 
 #### Alcohol 
 ```{r Alcohol vs. Quality, echo=FALSE}
@@ -136,8 +233,15 @@ qplot(data=wine, quality.factor, alcohol, geom='boxplot')
 
 From the above graphs, higher alcohol percent seems to be good for wine. There is quite discernible growth in quality with increasing medians in alcohol content (except for quality 5, could be affected by other variables)
 
+```{r, echo=FALSE}
+qplot(data=wine, alcohol) + facet_wrap(~quality.factor) + scale_y_log10()
+```
+
+The above observation can be confirmed from the histogram for quality 5,6, and 7.
+
+
 ## Summary of Univariate analysis
-Citric acid, sulphates and alcohol concentration seems to be directly proportional to good quality while volatile acidity, density and pH indirectly proportional to good quality of wine.
+From the above univariate analysis, citric acid, sulphates and alcohol concentration seems to be directly proportional to good quality while volatile acidity, density and pH indirectly proportional to good quality of wine.
 Correlation could be a good metric to rank the influence of these factors on quality.
 ```{r}
 with(wine, cor(quality, alcohol))
@@ -148,111 +252,208 @@ with(wine, cor(quality, density))
 with(wine, cor(quality, pH))
 ```
 
-We analyzed each variable summary with quality using box plots for each variable. Many variables shared significant overlap in their distribution between various grades of quality. It'd be interesting to see how each variable distribution changes with quality.
+We analyzed each variable with quality using box plots and histograms for each variable. Many variables shared significant overlap in their distribution between various grades of quality. While we segregated the histograms faceted by quality, it'd be good to analyze all of them together on the same plot distinguished by color. This can help us give insights into patterns across quality grades for each variable.
 
 
 ## Analyze distribution of variables with quality visually. 
-In the dataset, the number of datapoints for quality 8 is very less. While we compare the patterns for all quality grades, it'd be good to observe the relation between variables and quality grades 5,6 and 7.
+In the dataset, the number of datapoints for quality 3,4 and 8 are very less. While we compare the patterns for all quality grades, it'd be good to observe patterns within variables for quality grades 5,6 and 7.
 
-```{r Fixed acidity, echo=FALSE}
-ggplot(data=wine, aes(x=fixed.acidity)) + 
+```{r, echo=FALSE}
+wine567 <- subset(wine, quality>=  5 & quality<=7)
+qplot(data=wine567, quality.factor)
+```
+
+
+Now, lets analyze patterns within each variable for quality 5,6 and 7.
+```{r, echo=FALSE}
+ggplot(data=wine567, aes(x=fixed.acidity)) + 
   geom_freqpoly(aes(color=quality.factor)) +
   scale_y_log10()
 ```
 
 All quality grades have significant overlap over the range of the variable. This graph will not help deduce any relationship between variable and quality.
 
-Also, looks like we are making similar analysis as we did with boxplots since this is just another way to plot data by changing axes. As such, we can plot all graphs together and confirm our previous analysis against the variable distribution.
+Also, looks like we are making similar analysis as we did with boxplots since this is just another way to plot data by changing axes. As such, we can plot all variables together and analyze for any new patterns.
 
-```{r All Variables, echo=FALSE}
-p1 <- ggplot(data=wine, aes(x=fixed.acidity))        + geom_freqpoly(aes(color=quality.factor)) 
-p2 <- ggplot(data=wine, aes(x=volatile.acidity))     + geom_freqpoly(aes(color=quality.factor))
-p3 <- ggplot(data=wine, aes(x=citric.acid))          + geom_freqpoly(aes(color=quality.factor))
-p4 <- ggplot(data=wine, aes(x=residual.sugar))       + geom_freqpoly(aes(color=quality.factor))
-p5 <- ggplot(data=wine, aes(x=chlorides))            + geom_freqpoly(aes(color=quality.factor))
-p6 <- ggplot(data=wine, aes(x=free.sulfur.dioxide))  + geom_freqpoly(aes(color=quality.factor))
-p7 <- ggplot(data=wine, aes(x=total.sulfur.dioxide)) + geom_freqpoly(aes(color=quality.factor))
-p8 <- ggplot(data=wine, aes(x=density))              + geom_freqpoly(aes(color=quality.factor))
-p9 <- ggplot(data=wine, aes(x=pH))                   + geom_freqpoly(aes(color=quality.factor))
-p10 <- ggplot(data=wine, aes(x=sulphates))           + geom_freqpoly(aes(color=quality.factor))
-p11 <- ggplot(data=wine, aes(x=alcohol))             + geom_freqpoly(aes(color=quality.factor))
+```{r All Variables, fig.width=10, fig.asp=0.75, echo=FALSE}
+p1 <- ggplot(data=wine567, aes(x=fixed.acidity)) + 
+  geom_freqpoly(aes(color=quality.factor)) + 
+  xlab("Fixed acidity(g / dm^3)")
+p2 <- ggplot(data=wine567, aes(x=volatile.acidity)) + 
+  geom_freqpoly(aes(color=quality.factor))+ 
+  xlab("Volatile acidity(g / dm^3)")
+p3 <- ggplot(data=wine567, aes(x=citric.acid)) + 
+  geom_freqpoly(aes(color=quality.factor))+ 
+  xlab("Citric acid(g / dm^3)")
+p4 <- ggplot(data=wine567, aes(x=residual.sugar)) + 
+  geom_freqpoly(aes(color=quality.factor))+ 
+  xlab("Residual Sugar(g / dm^3)")
+p5 <- ggplot(data=wine567, aes(x=chlorides)) + 
+  geom_freqpoly(aes(color=quality.factor))+ 
+  xlab("Chlorides(g / dm^3)")
+p6 <- ggplot(data=wine567, aes(x=free.sulfur.dioxide)) + 
+  geom_freqpoly(aes(color=quality.factor)) +
+  xlab("Free sulfur dioxide(mg / dm^3)")
+p7 <- ggplot(data=wine567, aes(x=total.sulfur.dioxide)) + 
+  geom_freqpoly(aes(color=quality.factor))+ 
+  xlab("Total sulfur dioxide(mg / dm^3)")
+p8 <- ggplot(data=wine567, aes(x=density)) + 
+  geom_freqpoly(aes(color=quality.factor))+ 
+  xlab("Density(g / cm^3)")
+p9 <- ggplot(data=wine567, aes(x=pH)) + 
+  geom_freqpoly(aes(color=quality.factor))+ 
+  xlab("pH")
+p10 <- ggplot(data=wine567, aes(x=sulphates)) + 
+  geom_freqpoly(aes(color=quality.factor))+ 
+  xlab("Sulphates(g / dm^3)")
+p11 <- ggplot(data=wine567, aes(x=alcohol)) + 
+  geom_freqpoly(aes(color=quality.factor))+
+  xlab("Alcohol(%)")
 grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, ncol=3)
 ```
 
-In the above graphs, plots for grade 5 and 6 dominates other plots. This indicates a lack of data points for quality grades to make any discernible decisions about distribution of variables for different quality grades. However, the above graphs show ranges for the variables.  
-* Fixed acidity seems to be bimodal for quality grades 5 and 6 with range between 5 and 12 units.  
-* Volatile acidity seems to have range between .25 and .75 units.  
-* Citric acid concentration seems to be between 0 and .5 units.  
-* Residual sugars hava a range between 1 and 3 units.  
-* Chlorides have range between 0.01 and 0.12 units.  
-* Free sulfur dioxide seems to be decaying down from 5 to 40.  
-* Total sulfur dioxide seems to be decaying down from 20 to 150.  
-* Density and pH seems to be having normal distribution with mean at 0.996 and 3.3 respectively.  
-* Sulphates also seems to be long right tailed normally distributed at 0.6 mean.  
-* Alcohol content seems to be exponentially decaying from 9.5 to 12.  
+From the above graphs, we can conclude the following.  
+* Variables with positive relation to quality: Fixed acidity, citric acid, sulphates and alcohol.   
+* Variables with negative relation to quality: Volatile acidity, density. Also, pH seems to be showing a small negative trend.   
 
-It'd be helpful to change the Y scale to log10 to analyze the histogram distribution across each grade.  
-```{r, echo=FALSE}
-p21 <- ggplot(data=wine, aes(x=fixed.acidity))         + geom_freqpoly(aes(color=quality.factor)) + scale_y_log10()
-p22 <- ggplot(data=wine, aes(x=volatile.acidity))      + geom_freqpoly(aes(color=quality.factor)) + scale_y_log10()
-p23 <- ggplot(data=wine, aes(x=citric.acid))           + geom_freqpoly(aes(color=quality.factor)) + scale_y_log10()
-p24 <- ggplot(data=wine, aes(x=residual.sugar))        + geom_freqpoly(aes(color=quality.factor)) + scale_y_log10()
-p25 <- ggplot(data=wine, aes(x=chlorides))             + geom_freqpoly(aes(color=quality.factor)) + scale_y_log10()
-p26 <- ggplot(data=wine, aes(x=free.sulfur.dioxide))   + geom_freqpoly(aes(color=quality.factor)) + scale_y_log10()
-p27 <- ggplot(data=wine, aes(x=total.sulfur.dioxide))  + geom_freqpoly(aes(color=quality.factor)) + scale_y_log10()
-p28 <- ggplot(data=wine, aes(x=density))               + geom_freqpoly(aes(color=quality.factor)) + scale_y_log10()
-p29 <- ggplot(data=wine, aes(x=pH))                    + geom_freqpoly(aes(color=quality.factor)) + scale_y_log10()
-p30 <- ggplot(data=wine, aes(x=sulphates))            + geom_freqpoly(aes(color=quality.factor)) + scale_y_log10()
-p31 <- ggplot(data=wine, aes(x=alcohol))              + geom_freqpoly(aes(color=quality.factor)) + scale_y_log10()
+Lets enhance the peaks by plotting in log scale to see the shifts in peaks. 
+
+```{r, fig.width=10, fig.asp=0.75, echo=FALSE}
+p21 <- ggplot(data=wine567, aes(x=fixed.acidity)) + 
+  geom_freqpoly(aes(color=quality.factor)) + 
+  scale_y_log10()+ 
+  xlab("Fixed acidity(g / dm^3)")
+p22 <- ggplot(data=wine567, aes(x=volatile.acidity)) + 
+  geom_freqpoly(aes(color=quality.factor)) + 
+  scale_y_log10()+ 
+  xlab("Volatile acidity(g / dm^3)")
+p23 <- ggplot(data=wine567, aes(x=citric.acid)) + 
+  geom_freqpoly(aes(color=quality.factor)) + 
+  scale_y_log10()+ 
+  xlab("Citric acid(g / dm^3)")
+p24 <- ggplot(data=wine567, aes(x=residual.sugar)) + 
+  geom_freqpoly(aes(color=quality.factor)) + 
+  scale_y_log10()+ 
+  xlab("Residual Sugar(g / dm^3)")
+p25 <- ggplot(data=wine567, aes(x=chlorides)) + 
+  geom_freqpoly(aes(color=quality.factor)) + 
+  scale_y_log10()+ 
+  xlab("Chlorides(g / dm^3)")
+p26 <- ggplot(data=wine567, aes(x=free.sulfur.dioxide)) + 
+  geom_freqpoly(aes(color=quality.factor)) + 
+  scale_y_log10()+ 
+  xlab("Free sulfur dioxide(mg / dm^3)")
+p27 <- ggplot(data=wine567, aes(x=total.sulfur.dioxide)) + 
+  geom_freqpoly(aes(color=quality.factor)) + 
+  scale_y_log10()+ 
+  xlab("Total sulfur dioxide(mg / dm^3)")
+p28 <- ggplot(data=wine567, aes(x=density)) + 
+  geom_freqpoly(aes(color=quality.factor)) + 
+  scale_y_log10()+ 
+  xlab("Density(g / cm^3)")
+p29 <- ggplot(data=wine567, aes(x=pH)) + 
+  geom_freqpoly(aes(color=quality.factor)) + 
+  scale_y_log10()+ 
+  xlab("pH")
+p30 <- ggplot(data=wine567, aes(x=sulphates)) + 
+  geom_freqpoly(aes(color=quality.factor)) + 
+  scale_y_log10()+ 
+  xlab("Sulphates(g / dm^3)")
+p31 <- ggplot(data=wine567, aes(x=alcohol)) + 
+  geom_freqpoly(aes(color=quality.factor)) + 
+  scale_y_log10()+
+  xlab("Alcohol(%)")
 grid.arrange(p21,p22,p23,p24,p25,p26,p27,p28,p29,p30,p31, ncol=3)
 ```
 
-The log scale for count in y direction seems to be bringing up similar patterns for all variables across all quality grades. This means there is a huge overlap in the variable distribution for different quality grades. This makes determination of any meaningful relationship between variables and quality difficult. 
+The log scale plots are more helpful in confirming the above observations in trends.
 
-
-Since all charts were dominated by quality grades 5 and 6, it'd be helpful to plot above only for grage 8. However, there are few data points to notice any significant patterns.
-
+Now, lets try to find the best range for each variable for best quality wine. However, lets keep in mind that there are few data points to notice any significant patterns.
 
 ```{r, echo=FALSE}
-p21 <- ggplot(data=subset(wine, quality.factor==8), aes(x=fixed.acidity))        + geom_freqpoly()
-p22 <- ggplot(data=subset(wine, quality.factor==8), aes(x=volatile.acidity))     + geom_freqpoly()
-p23 <- ggplot(data=subset(wine, quality.factor==8), aes(x=citric.acid))          + geom_freqpoly()
-p24 <- ggplot(data=subset(wine, quality.factor==8), aes(x=residual.sugar))       + geom_freqpoly()
-p25 <- ggplot(data=subset(wine, quality.factor==8), aes(x=chlorides))            + geom_freqpoly()
-p26 <- ggplot(data=subset(wine, quality.factor==8), aes(x=free.sulfur.dioxide))  + geom_freqpoly()
-p27 <- ggplot(data=subset(wine, quality.factor==8), aes(x=total.sulfur.dioxide)) + geom_freqpoly()
-p28 <- ggplot(data=subset(wine, quality.factor==8), aes(x=density))              + geom_freqpoly()
-p29 <- ggplot(data=subset(wine, quality.factor==8), aes(x=pH))                   + geom_freqpoly()
-p30 <- ggplot(data=subset(wine, quality.factor==8), aes(x=sulphates))           + geom_freqpoly()
-p31 <- ggplot(data=subset(wine, quality.factor==8), aes(x=alcohol))             + geom_freqpoly()
+p21 <- ggplot(data=subset(wine, quality.factor==8), aes(x=fixed.acidity)) + 
+  geom_freqpoly()+ 
+  xlab("Fixed acidity(g / dm^3)")
+p22 <- ggplot(data=subset(wine, quality.factor==8), aes(x=volatile.acidity)) + 
+  geom_freqpoly()+ 
+  xlab("Volatile acidity(g / dm^3)")
+p23 <- ggplot(data=subset(wine, quality.factor==8), aes(x=citric.acid)) + 
+  geom_freqpoly()+ 
+  xlab("Citric acid(g / dm^3)")
+p24 <- ggplot(data=subset(wine, quality.factor==8), aes(x=residual.sugar)) + 
+  geom_freqpoly()+ 
+  xlab("Residual Sugar(g / dm^3)")
+p25 <- ggplot(data=subset(wine, quality.factor==8), aes(x=chlorides)) + 
+  geom_freqpoly()+ 
+  xlab("Chlorides(g / dm^3)")
+p26 <- ggplot(data=subset(wine, quality.factor==8), aes(x=free.sulfur.dioxide))+
+  geom_freqpoly()+ 
+  xlab("Free sulfur dioxide(mg / dm^3)")
+p27 <- ggplot(data=subset(wine, quality.factor==8),aes(x=total.sulfur.dioxide))+
+  geom_freqpoly()+ 
+  xlab("Total sulfur dioxide(mg / dm^3)")
+p28 <- ggplot(data=subset(wine, quality.factor==8), aes(x=density)) + 
+  geom_freqpoly()+ 
+  xlab("Density(g / cm^3)")
+p29 <- ggplot(data=subset(wine, quality.factor==8), aes(x=pH)) + 
+  geom_freqpoly()+ 
+  xlab("pH")
+p30 <- ggplot(data=subset(wine, quality.factor==8), aes(x=sulphates)) + 
+  geom_freqpoly()+ 
+  xlab("Sulphates(g / dm^3)")
+p31 <- ggplot(data=subset(wine, quality.factor==8), aes(x=alcohol)) + 
+  geom_freqpoly() +
+  xlab("Alcohol(%)")
 grid.arrange(p21,p22,p23,p24,p25,p26,p27,p28,p29,p30,p31, ncol=3)
 ```
 
 The plots look quite uniform due to lack of data points for quality grades 8. It'd be good to consider quality grades 7 and 8 together for higher quality.
 
 ```{r, echo=FALSE}
-p41 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), aes(x=fixed.acidity))       +
-  geom_freqpoly()
-p42 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), aes(x=volatile.acidity))    +
-  geom_freqpoly()
-p43 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), aes(x=citric.acid))         +
-  geom_freqpoly()
-p44 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), aes(x=residual.sugar))      +
-  geom_freqpoly()
-p45 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), aes(x=chlorides))           +
-  geom_freqpoly()
-p46 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), aes(x=free.sulfur.dioxide)) +
-  geom_freqpoly()
-p47 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), aes(x=total.sulfur.dioxide))+
-  geom_freqpoly()
-p48 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), aes(x=density))             +
-  geom_freqpoly()
-p49 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), aes(x=pH))                  +
-  geom_freqpoly()
-p50 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), aes(x=sulphates))           + 
-  geom_freqpoly()
-p51 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), aes(x=alcohol))             + 
-  geom_freqpoly()
+p41 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), 
+              aes(x=fixed.acidity)) +
+  geom_freqpoly() + 
+  xlab("Fixed acidity(g / dm^3)")
+p42 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), 
+              aes(x=volatile.acidity)) +
+  geom_freqpoly()+ 
+  xlab("Volatile acidity(g / dm^3)")
+p43 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), 
+              aes(x=citric.acid)) +
+  geom_freqpoly()+ 
+  xlab("Citric acid(g / dm^3)")
+p44 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), 
+              aes(x=residual.sugar)) +
+  geom_freqpoly()+ 
+  xlab("Residual Sugar(g / dm^3)")
+p45 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), 
+              aes(x=chlorides)) +
+  geom_freqpoly()+ 
+  xlab("Chlorides(g / dm^3)")
+p46 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), 
+              aes(x=free.sulfur.dioxide)) +
+  geom_freqpoly()+ 
+  xlab("Free sulfur dioxide(mg / dm^3)")
+p47 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), 
+              aes(x=total.sulfur.dioxide))+
+  geom_freqpoly()+ 
+  xlab("Total sulfur dioxide(mg / dm^3)")
+p48 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), 
+              aes(x=density)) +
+  geom_freqpoly()+ 
+  xlab("Density(g / cm^3)")
+p49 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), 
+              aes(x=pH)) +
+  geom_freqpoly()+ 
+  xlab("pH")
+p50 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), 
+              aes(x=sulphates)) + 
+  geom_freqpoly()+ 
+  xlab("Sulphates(g / dm^3)")
+p51 <- ggplot(data=subset(wine, quality.factor==8 | quality.factor == 7), 
+              aes(x=alcohol)) + 
+  geom_freqpoly()+ 
+  xlab("Alcohol(%)")
 grid.arrange(p41,p42,p43,p44,p45,p46,p47,p48,p49,p50,p51, ncol=3)
 ```
 
@@ -271,31 +472,41 @@ The above distribution of variables for quality grades 7 and 8 help narrow the r
 
 
 # Bivariate and Multivariate analysis
+From the univariate analysis, we identified a set of variables which impact the quality. Let's analyze these set of variable for how they affect each other.
 
-```{r, echo=FALSE}
-ggpairs(wine,
+```{r fig2, fig.asp=1, fig.width = 8, fig.align = "center", echo=FALSE}
+wine2 <- wine[c("fixed.acidity", 
+                "volatile.acidity", 
+                "citric.acid",
+                "density",
+                "pH",
+                "sulphates", 
+                "alcohol", 
+                "quality")]
+
+ggpairs(wine2,
   lower = list(continuous = wrap("points", shape = I('.'))),
-  upper = list(combo = wrap("box", outlier.shape = I('.'))))
+  upper = list(combo = wrap("box", outlier.shape = I('.')))) +
+  theme(axis.text.x = element_text(angle = -30, size = 6, hjust = 0.2),
+        axis.text.y = element_text(angle = 30, size = 6))  
 ```
 
 From the pairwise investigation, the following are observed.  
-* Even though univariate analysis brought up some variables that might be impacting the quality, no variables have good correlation with Quality.  
+* These above variables identified to impact quality by univariate analysis. However, none of these variables have good correlation with quality.  
 * Fixed.acidity seems to be negatively correlated with volatile.acidity and pH.   
-* Also, fixed.acidity is better correlated with citric.acid and density.  
+* Also, fixed.acidity is positively correlated with citric.acid and density.  
 * While fixed.acidity is corelated to all factors affecting quality, it surprisingly has no significant impact on quality.  
-* Residual sugars and chlorides don't have correlation with anything.  
-* Free.sulphur.dioxide and total.sulphur.dioxide don't correlate with anything but have good correlation between themselves understandably.  
 * Alcohol content seems to be negatively correlated with density.  
  
 ## Fixed acidity vs citric acid vs quality
 From the above observations, lets explore related varibles.
 ```{r Fixed acidity vs citric acid Facet wrap by quality, echo=FALSE}
 ggplot(data = wine, aes(fixed.acidity, citric.acid)) + 
-  geom_line() + facet_wrap(~quality.factor) + 
+  geom_point(alpha=0.1) + facet_wrap(~quality.factor) + 
   geom_smooth(method='lm')
 ```
 
-From the above graph, fixed.acidity and citric.acid seems to have a linear relationship. However, the ratio seems to be similar across different quality grades.
+From the above graph, fixed.acidity and citric.acid seems to have a linear relationship. However, the ratio seems to be similar across different quality grades. Let's analyze the ratio of citric.acid and fixed.acidity across quality using box plots.
 
 ```{r Quality vs citric.acid/fixed.acidity, echo=FALSE}
 ggplot(data=wine, aes(quality, citric.acid/fixed.acidity)) + 
@@ -309,7 +520,7 @@ The above graph shows that although the ratio is increasing with quality, the ra
 ## Fixed.acidity vs density vs quality
 ```{r, echo=FALSE}
 ggplot(data=wine, aes(fixed.acidity, density)) + 
-  geom_point() + 
+  geom_point(alpha=0.1) + 
   facet_wrap(~quality.factor) + 
   geom_smooth(method='lm')
 ```
@@ -319,7 +530,7 @@ Similarly, fixed.acidity and density seems to have a linear relationship but the
 ## Fixed.acidity vs volatile.acidity vs quality
 ```{r, echo=FALSE}
 ggplot(data=wine, aes(fixed.acidity, volatile.acidity)) + 
-  geom_point() + 
+  geom_point(alpha=0.1) + 
   facet_wrap(~quality.factor)
 ```
 
@@ -328,7 +539,7 @@ No discernible relationship between fixed.acidity and volatile.acidity.
 ## Fixed.acidity vs pH vs quality
 ```{r, echo=FALSE}
 ggplot(data=wine, aes(fixed.acidity, pH)) + 
-  geom_point() + facet_wrap(~quality.factor) + 
+  geom_point(alpha=0.1) + facet_wrap(~quality.factor) + 
   geom_smooth(method='lm')
 ```
 
@@ -336,9 +547,10 @@ Although negative, fixed.acidity and pH seem to have a linear relationship. But 
 
 ## Alcohol vs density vs quality
 Another relation observed from above was that alcohol and density were kind of complementary variables. It'd be good to investigate how the difference would corelate with quality.
+
 ```{r, echo=FALSE}
 ggplot(data=wine, aes(alcohol, density)) + 
-  geom_point() +facet_wrap(~quality.factor) + 
+  geom_point(alpha=0.1) +facet_wrap(~quality.factor) + 
   geom_smooth(method='lm')
 ```
 
@@ -347,14 +559,18 @@ Again, like other pairs investigated above, alcohol and density also seems to ha
 ## Model using all significant variables
 While the pairs of variables above helped get more insights the pairs didn't help much towards devising a good model to predict quality. Lets try and see how the groups of positively related variables corelate with quality.  
 ```{r Correlation of all significant variables together with quality}
-with(wine, cor(quality, citric.acid+alcohol+sulphates))
-with(wine, cor(quality, volatile.acidity+pH+density))
-with(wine, cor(quality, citric.acid+alcohol+sulphates-volatile.acidity-pH-density))
+with(wine, 
+     cor(quality, citric.acid+alcohol+sulphates))
+with(wine, 
+     cor(quality, volatile.acidity+pH+density))
+with(wine, 
+     cor(quality, citric.acid+alcohol+sulphates-volatile.acidity-pH-density))
 ```
 The above model with all significant variables seems to be more corelated to quality than any individual variables alone.
 
 # Linear model
 Let's build a linear model for predicting the quality of wine based on above observations.
+
 ```{r}
 m1 <- lm(quality ~ alcohol, data = wine)
 m2 <- update(m1, ~ . + citric.acid)
@@ -368,41 +584,38 @@ mtable(m1, m2, m3, m4, m5, m6)
 The R squared values are still not significant enough for any meaningful linear model.
 
 # Final plots and Summary
-## Output variable distribution
+## Plot 1: Output variable distribution
 ```{r, echo=FALSE}
 ggplot(data = wine, aes(quality)) + 
-  geom_histogram()+ 
-  ggtitle("Histogram of output variable-Quality")
+  geom_bar()+ 
+  theme(plot.title = element_text(hjust=0.5))+
+  ggtitle("Histogram of quality distribution")
 ```
 
 Observations:
 There are very few data points for best quality and worse quality. Most of the data points is dominated by mid-quality. Thus, devising a good predictive model for quality with few data points very difficult.
 
-## Univariate analysis
+## Plot 2: Univariate analysis
+
 ```{r, echo=FALSE}
-grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, ncol=3)
+grid.arrange(p41,p42,p43,p44,p45,p46,p47,p48,p49,p50,p51, 
+             ncol=3, 
+             top="Univariate analysis summary")
 ```
 
 Observations:
-Data points for quality grades 5 and 6 dominated every variable. Also, there seems to be either similar patterns or huge overlap of data points across different quality grades. As such, no individual variable was good enough to make a predictive model to predict wine quality. However, the above plots helped to generate a range of values for quality wine.
+Data points for quality grades 5 and 6 dominated every variable. Also, there seems to be either similar patterns or huge overlap of data points across different quality grades. As such, no individual variable was good enough to make a predictive model to predict wine quality. However, the above plots helped to generate a range of values for good quality wine. In the above plots, due to lack of data points for best quality(8) wine, clubbing quality grades 7 and 8 helped to generate best ranges of values for all variables for better quality of wine.
 
-
-```{r, echo=FALSE}
-grid.arrange(p41,p42,p43,p44,p45,p46,p47,p48,p49,p50,p51, ncol=3)
-```
-
-Because of lack of data points for best quality(8) wine, clubbing quality grades 7 and 8 helped narrow down ranges of values for all variables for better quality of wine.
-
-## Multivariate analysis
+## Plot 3: Multivariate analysis
 Multivariate analysis between different pairs of variables helped get better insights on how variables are related to each other. However, the pattern of this relationship remained quite similar across different quality grades. One such example is shown below.
+
 ```{r Linear model between quality and citric.acid/fixed.acidity, echo=FALSE}
 ggplot(data=wine, aes(quality, citric.acid/fixed.acidity)) + 
   geom_boxplot(aes(color=quality.factor)) +
   geom_smooth(method='lm') + 
+  ylim(0, .1) +
+  theme(plot.title = element_text(hjust=0.5))+
   ggtitle("Similar linear relationship of citric.acid/fixed.acidity vs quality")
-```
-
-```{r, echo=FALSE}
 with(wine, by(citric.acid/fixed.acidity,quality,summary))
 ```
 
