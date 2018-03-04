@@ -45,109 +45,167 @@ From the summary and quality histogram, the quality distribution looks to be nor
 It'd be interesting to see how each variables affect the quality of wine.
 
 
-## Univariate Analysis
+## Univariate and Bivariate Analysis
 Let's study impact of each variable on quality in depth based on description and data. 
 
 
 ### Impact of each variable on quality
 #### Fixed.acidity
+Let's analyze the variable distribution.
+
+```{r, echo=FALSE}
+qplot(data=wine, fixed.acidity, binwidth=0.5)
+```
+
+Fixed acidity seems to have slightly right tailed distribution. It seems to have some outliers after >14g/dm^3.
+
+```{r, echo=FALSE}
+qplot(data=wine, fixed.acidity, binwdith=0.25) + xlim(4,14)
+qplot(data=wine, fixed.acidity, binwdith=0.25) + scale_x_log10(limits=c(4,14),breaks=seq(4,14,1))
+```
+
+The log scaled plot seems to be more normal like distribution. Now, lets analyze the impact of fixed.acidity on quality.
+
 ```{r, echo=FALSE}
 by(wine$fixed.acidity, wine$quality, summary)
 ```
+
 The fixed acidity seems to be in the similar ranges for all quality grades of the red wine. It'd be helpful to visualize the distributions with boxplots and scatter plots.
 
 
 ```{r Boxplot of Fixed acidity vs Quality, echo=FALSE}
 wine$quality.factor <- factor(wine$quality)
-qplot(data=wine, x=quality.factor, y=fixed.acidity, geom = 'boxplot') 
+qplot(data=wine, x=quality.factor, y=fixed.acidity, geom = 'boxplot') + ylim(4,14)
 ```
 
 Looks like the fixed.acidity are in the similar ranges. Fixed.acidity for quality 8 and 3 looks very similar from the box plots. Doesn't look like fixed.acidity has any impact on the quality.
 
 ```{r, echo=FALSE}
-qplot(data=wine, fixed.acidity, binwidth=0.5) + facet_wrap(~quality.factor)
+qplot(data=wine, fixed.acidity, binwidth=0.5) + 
+  facet_wrap(~quality.factor) + 
+  xlim(4,14)
 ```
 
 As can be seen from the above plot, there are lot of data points for quality 5 and 6. Very few for quality 3,4 and 8. The histogram for quality 5 and 6 also looks quite similar.
 
 
 #### Volatile.acidity
+```{r Volatile acidity, echo=FALSE}
+qplot(data=wine, x=volatile.acidity) 
+qplot(data=wine, x=volatile.acidity, binwidth= 0.02) + 
+  scale_x_continuous(limits=c(0.1,1.1), breaks = seq(0.1,1.1,0.2))
+```
+
+The distribution seems to be bimodal with peaks around 0.4 and 0.6. Now, lets analyze its impact on quality.
+
 ```{r Volatile acidity vs Quality, echo=FALSE}
-qplot(data = wine, x=quality.factor, y=volatile.acidity, geom='boxplot')
+qplot(data = wine, x=quality.factor, y=volatile.acidity, geom='boxplot') + 
+  ylim(0.1,1.1)
 ```
 
 Looks like higher the volatile.acidity lower the quality and vice versa. This is in agreement with the description. Higher amount of acetic acid in wine leads to unpleasant, vinegar taste. This is one of the good indicator of wine quality. Although there are some datapoints with lower volatile.acidity in lower quality, those data points could be affected by other variables.
 
 ```{r, echo=FALSE}
-qplot(data = wine, x=volatile.acidity) + facet_wrap(~quality.factor)
+qplot(data = wine, x=volatile.acidity) + 
+  facet_wrap(~quality.factor) + 
+  xlim(0.1,1.1)
 ```
 
 In this histogram also we can see that there are few data points for quality 3,4 and 8 while large data points for 5 and 6. We can also see the gradual shift of the median between quality 5, 6 and 7. 
 
 
 #### Citric.acid
+
 ```{r, echo=FALSE}
-qplot(data=wine, x=quality.factor, y=citric.acid, geom = 'boxplot')
+qplot(data=wine, citric.acid)
+qplot(data=wine, citric.acid, binwidth=0.025) + 
+  scale_x_continuous(limits=c(-.05,.9))
+```
+
+Citric acid distribution seems to be gradually decreasing from 0 to .9. Lets analyze its impact on quality.
+
+```{r, echo=FALSE}
+qplot(data=wine, x=quality.factor, y=citric.acid, geom = 'boxplot') + 
+  ylim(-.05,0.9)
 ```
 
 In general, higher citric.acid seems to be good for wine. 0.3 to 0.53 seems to be good amount of citric.acid in wine.
 
 ```{r, echo=FALSE}
-qplot(data = wine, x=citric.acid, binwidth=0.05) + facet_wrap(~quality.factor)
+qplot(data = wine, x=citric.acid, binwidth=0.05) + 
+  facet_wrap(~quality.factor) +
+  xlim(-.1, 0.9)
 ```
 
 Citric acid distribution seems to be bimodal for quality 5,6, and 7. Also, second peak seems to be shifting towards right from 0.25 for quality 5 to .4 for quality 7.
 
 #### Residual.sugar
-```{r Residual Sugar vs. Quality, echo=FALSE}
-qplot(data=wine, quality.factor, residual.sugar, geom='boxplot')
-```
-
-The interquantile bands are very close. It'd be good to limit the range and observe them.
+Let's analyze the histogram of residual sugar in the wine.
 
 ```{r, echo=FALSE}
-qplot(data=wine, quality.factor, residual.sugar, geom='boxplot') + 
-  coord_cartesian(ylim=c(0,4))
+qplot(data=wine, residual.sugar)
+qplot(data=wine, residual.sugar, binwidth=0.1) + xlim(0.5,4)
+```
+
+Residual sugar seems to have right tailed distributionwith majority of datapoints between 0 and 4. Lets analyze its impact on quality.
+
+```{r Residual Sugar vs. Quality, echo=FALSE}
+qplot(data=wine, quality.factor, residual.sugar, geom='boxplot') + ylim(0.5,4)
 ```
 
 Residual sugars seems to be in the same concentrations for each quality. There are no sweet wines with sugar concentration greater than 45 grams/liter in this dataset. It'd be interesting to see how red sweet wines are rated.
 
 ```{r, echo=FALSE}
-qplot(data=wine, x=residual.sugar) + facet_wrap(~quality.factor)
+qplot(data=wine, x=residual.sugar) + facet_wrap(~quality.factor) + xlim(0.5,4)
 ```
 
 As seen before, most of the data points are for quality 5 and 6. Both of these plots seem to have normal distribution with peak at 2.
 
 
 #### Chlorides 
-```{r Chlorides vs. Quality, echo=FALSE}
-qplot(data=wine, quality.factor, chlorides, geom='boxplot')
-```
-
-Outliers are way outside the interquantile range. Need to limit the range and observe the dynamics of the interquantile range across quality grades.
+Lets visualize the chloride content distribution.
 
 ```{r, echo=FALSE}
-qplot(data=wine, quality.factor, chlorides, geom='boxplot') + ylim(0,0.2)
+qplot(data =wine,chlorides)
+qplot(data =wine,chlorides) + xlim(0,0.15)
+```
+
+Chloride content seems to be very less with normal distribution and peak at 0.075. Lets look at its impact on quality.
+
+```{r Chlorides vs. Quality, echo=FALSE}
+qplot(data=wine, quality.factor, chlorides, geom='boxplot') + ylim(0,.15)
 ```
 
 The median seems to be shifting downward from quality 3 to 8. However, there is a huge overlap of interquantile range across all quality grades. Also, the range is narrowing from lower to higher quality. This may also be because of lack data points. 
 
 ```{r, echo=FALSE}
-qplot(data=wine, x=chlorides) + facet_wrap(~quality.factor)
+qplot(data=wine, x=chlorides) + facet_wrap(~quality.factor) + xlim(0,0.15)
 ```
 
 Most data points across different quality grades lie within 0.2 with peak at 0.1.
 
 
 #### Free.sulfur.dioxide
+Lets visualize the free sulfur dioxide content distribution.
+
+```{r, echo=FALSE}
+qplot(data =wine,free.sulfur.dioxide)
+qplot(data =wine,free.sulfur.dioxide, binwdith=1) + xlim(0,60) + scale_x_log10(breaks=seq(0,60,10))
+```
+
+Free sulfur dioxide seems to have bimodal distribution with peaks at 6 and 12. Lets analyze its impact on quality.
+
 ```{r Free Sulfur dioxide, echo=FALSE}
-qplot(data=wine, quality.factor, free.sulfur.dioxide, geom='boxplot')
+qplot(data=wine, quality.factor, free.sulfur.dioxide, geom='boxplot') + 
+  ylim(0,60)
 ```
 
 This is quite a weird plot with median increasing from quality 3 to 5 and going down from quality 5 to 8. May be the histogram can help analyze the distribution. 
 
 ```{r, echo=FALSE}
-qplot(data=wine, x=free.sulfur.dioxide) + facet_wrap(~quality.factor)
+qplot(data=wine, x=free.sulfur.dioxide) + 
+  facet_wrap(~quality.factor) + 
+  xlim(0,60)
 ```
 
 The weird shift in the median seems to be due to lack of datapoints. The histogram for quality 5 and 6 seems to be similar. Lets analyze histogram by changing the y scale to log.
@@ -164,20 +222,42 @@ Also, as per description, free SO2 > 50 ppm would be evident in taste. So, this 
 
 
 #### Total.sulfur.dioxide
+Lets visualize the total sulfur dioxide content distribution.
+
+```{r, echo=FALSE}
+qplot(data =wine,total.sulfur.dioxide)
+qplot(data =wine,total.sulfur.dioxide, binwdith=10) + xlim(0,180)
+qplot(data =wine,total.sulfur.dioxide, binwdith=10) + xlim(0,180) + scale_x_log10(breaks=seq(0,180,50))
+```
+
+Total sulfur dioxide seems to have normal distribution in log scale. Lets analyze its impact on quality.
+
 ```{r Total Sulfur dioxide vs. Quality, echo=FALSE}
-qplot(data=wine, quality.factor, total.sulfur.dioxide, geom='boxplot')
+qplot(data=wine, quality.factor, total.sulfur.dioxide, geom='boxplot') +
+  ylim(0,180)
 ```
 
 Again, we can see the similar trend in median as we saw above. This can be very misleading. Lets look at the histogram.
 
 ```{r, echo=FALSE}
-qplot(data=wine, x=total.sulfur.dioxide) + facet_wrap(~quality.factor)
+qplot(data=wine, x=total.sulfur.dioxide) + 
+  facet_wrap(~quality.factor) + 
+  xlim(0,180)
 ```
 
 As expected, due to lack of data points, the trend we saw in the boxplots is invlaid. Both, free sulfur dioxide and total sulfur dioxide seems to have no impact on quality. We are not ablel to identify the best range of value for these variables for better wine quality due to lack data points and overlap of ranges. I guess, even smaller quantity is good enough to prevent microbial growth and oxidation.
 
 
 #### Density
+Lets visualize the density distribution.
+
+```{r, echo=FALSE}
+qplot(data =wine,density)
+```
+
+Density seems to have normal distribution. Lets analyze its impact on quality.
+
+
 ```{r Density vs. Quality, echo=FALSE}
 qplot(data=wine, quality.factor, density, geom='boxplot')
 ```
@@ -192,49 +272,78 @@ We can't use quality 3,4 and 6 due to insufficient data points. However, we can 
 
 
 #### pH
+Lets visualize the pH distribution in wine in this dataset.
+
+```{r, echo=FALSE}
+qplot(data =wine,pH)
+qplot(data =wine,pH, binwdith=0.05) + xlim(2.5,4)
+```
+
+pH seems to have normal distribution with peak at 3.3. Lets analyze its impact on quality.
+
+
 ```{r pH vs. Quality, echo=FALSE}
-qplot(data=wine, quality.factor, pH, geom='boxplot')
+qplot(data=wine, quality.factor, pH, geom='boxplot') + ylim(2.5,4)
 ```
 
 There is significant overlap of pH concentrations on all quality grades. However, there seems to be a small downward trend in median pH content. Looks like lower pH seems to relate to higher quality. Specificially, 3-3.5 seems to be a good range for quality wine.
 
 ```{r, echo=FALSE}
-qplot(data=wine, x=pH) + facet_wrap(~quality.factor)
+qplot(data=wine, x=pH) + facet_wrap(~quality.factor) + xlim(2.5,4)
 ```
 
 From quality 5,6,and 7, we can see the small downward trend in pH values for better wine quality. While the lower pH seems to be better, I wouldn't expect very acidic wine to be pleasant. With more data points across quality grades we could have probably identified the best range of pH for wine.
 
 
 #### Sulphates
+Lets visualize the sulphate distribution.
+
 ```{r, echo=FALSE}
-qplot(data=wine, quality.factor, sulphates, geom='boxplot')
+qplot(data =wine,sulphates)
+qplot(data =wine,sulphates, binwdith=0.1) + xlim(0.25,1.2)
 ```
 
-The interquantile ranges are overshadowed by the outliers. It'd be good to limit the y-axis.
+Sulphates seems to have right tailed distribution. Lets analyze its impact on quality.
+
 
 ```{r, echo=FALSE}
-qplot(data=wine, quality.factor, sulphates, geom='boxplot') + ylim(0,1)
+qplot(data=wine, quality.factor, sulphates, geom='boxplot') + ylim(0.25, 1.2)
 ```
 
 Sulphates contribute to SO2 which acts as antimicroial and antioxidant. However, SO2 itself was identified as having no significant impact on the quality. On the contrary to the SO2 impact, higher Sulphates concentrations seems to lead to higher quality. Specifically, 0.7-0.8 units seems to be good concentration for quality wine. But can we trust the range from this plot? No, let's look at the histogram.
 
 ```{r, echo=FALSE}
-qplot(data=wine, x=sulphates) + facet_wrap(~quality.factor) + scale_y_log10()
+qplot(data=wine, x=sulphates) + 
+  facet_wrap(~quality.factor) + 
+  scale_y_log10() +
+  xlim(0.25,1.2) 
 ```
 
 Very few data points. The best range that we determined from quality 8 is not valid because of lack of data points. However, from quality 5,6 and 7, range seems to be 0.5 to 1.
 
 
 #### Alcohol 
+Lets visualize the alcohol content distribution.
+
+```{r, echo=FALSE}
+qplot(data =wine,alcohol)
+qplot(data =wine,alcohol, binwdith=0.1) + xlim(8,14)
+```
+
+Alcohol content in wine in this dataset seems to have right tailed distribution. Lets analyze its impact on quality.
+
+
 ```{r Alcohol vs. Quality, echo=FALSE}
-library(gridExtra)
-qplot(data=wine, quality.factor, alcohol, geom='boxplot')
+qplot(data=wine, quality.factor, alcohol, geom='boxplot') + ylim(8,14)
 ```
 
 From the above graphs, higher alcohol percent seems to be good for wine. There is quite discernible growth in quality with increasing medians in alcohol content (except for quality 5, could be affected by other variables)
 
 ```{r, echo=FALSE}
-qplot(data=wine, alcohol) + facet_wrap(~quality.factor) + scale_y_log10()
+qplot(data=wine, alcohol) + 
+  facet_wrap(~quality.factor) + 
+  scale_y_log10() + 
+  xlim(8,14)
 ```
 
 The above observation can be confirmed from the histogram for quality 5,6, and 7.
@@ -471,8 +580,8 @@ The above distribution of variables for quality grades 7 and 8 help narrow the r
 * Alcohol content seems to be good between 10 and 12.  
 
 
-# Bivariate and Multivariate analysis
-From the univariate analysis, we identified a set of variables which impact the quality. Let's analyze these set of variable for how they affect each other.
+# Multivariate analysis
+From the univariate and bivariate analysis, we identified a set of variables which impact the quality. Let's analyze these set of variables for how they affect each other.
 
 ```{r fig2, fig.asp=1, fig.width = 8, fig.align = "center", echo=FALSE}
 wine2 <- wine[c("fixed.acidity", 
@@ -595,12 +704,12 @@ ggplot(data = wine, aes(quality)) +
 Observations:
 There are very few data points for best quality and worse quality. Most of the data points is dominated by mid-quality. Thus, devising a good predictive model for quality with few data points very difficult.
 
-## Plot 2: Univariate analysis
+## Plot 2: Univariate and Bivariate analysis
 
 ```{r, echo=FALSE}
 grid.arrange(p41,p42,p43,p44,p45,p46,p47,p48,p49,p50,p51, 
              ncol=3, 
-             top="Univariate analysis summary")
+             top="Univariate and Bivariate analysis summary")
 ```
 
 Observations:
