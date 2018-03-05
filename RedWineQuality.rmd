@@ -75,7 +75,11 @@ The fixed acidity seems to be in the similar ranges for all quality grades of th
 
 ```{r Boxplot of Fixed acidity vs Quality, echo=FALSE}
 wine$quality.factor <- factor(wine$quality)
-qplot(data=wine, x=quality.factor, y=fixed.acidity, geom = 'boxplot') + ylim(4,14)
+ggplot(aes(quality.factor, fixed.acidity),data = wine) +
+  geom_jitter(alpha=.3) +
+  geom_boxplot(alpha=0.5, color='blue') + 
+  stat_summary(fun.y="mean",geom="point",color="red", shape=8, size=4) +
+  ylim(4,14)
 ```
 
 Looks like the fixed.acidity are in the similar ranges. Fixed.acidity for quality 8 and 3 looks very similar from the box plots. Doesn't look like fixed.acidity has any impact on the quality.
@@ -99,7 +103,10 @@ qplot(data=wine, x=volatile.acidity, binwidth= 0.02) +
 The distribution seems to be bimodal with peaks around 0.4 and 0.6. Now, lets analyze its impact on quality.
 
 ```{r Volatile acidity vs Quality, echo=FALSE}
-qplot(data = wine, x=quality.factor, y=volatile.acidity, geom='boxplot') + 
+ggplot(aes(quality.factor, volatile.acidity),data = wine) +
+  geom_jitter(alpha=.3) +
+  geom_boxplot(alpha=0.5, color='blue') + 
+  stat_summary(fun.y="mean",geom="point",color="red", shape=8, size=4) +
   ylim(0.1,1.1)
 ```
 
@@ -125,8 +132,11 @@ qplot(data=wine, citric.acid, binwidth=0.025) +
 Citric acid distribution seems to be gradually decreasing from 0 to .9. Lets analyze its impact on quality.
 
 ```{r, echo=FALSE}
-qplot(data=wine, x=quality.factor, y=citric.acid, geom = 'boxplot') + 
-  ylim(-.05,0.9)
+ggplot(aes(quality.factor, citric.acid),data = wine) +
+  geom_jitter(alpha=.3) +
+  geom_boxplot(alpha=0.5, color='blue') + 
+  stat_summary(fun.y="mean",geom="point",color="red", shape=8, size=4) +
+  ylim(-0.05,0.9)
 ```
 
 In general, higher citric.acid seems to be good for wine. 0.3 to 0.53 seems to be good amount of citric.acid in wine.
@@ -150,7 +160,11 @@ qplot(data=wine, residual.sugar, binwidth=0.1) + xlim(0.5,4)
 Residual sugar seems to have right tailed distributionwith majority of datapoints between 0 and 4. Lets analyze its impact on quality.
 
 ```{r Residual Sugar vs. Quality, echo=FALSE}
-qplot(data=wine, quality.factor, residual.sugar, geom='boxplot') + ylim(0.5,4)
+ggplot(aes(quality.factor, residual.sugar),data = wine) +
+  geom_jitter(alpha=.3) +
+  geom_boxplot(alpha=0.5, color='blue') + 
+  stat_summary(fun.y="mean",geom="point",color="red", shape=8, size=4) +
+  ylim(0.5,4)
 ```
 
 Residual sugars seems to be in the same concentrations for each quality. There are no sweet wines with sugar concentration greater than 45 grams/liter in this dataset. It'd be interesting to see how red sweet wines are rated.
@@ -173,7 +187,11 @@ qplot(data =wine,chlorides) + xlim(0,0.15)
 Chloride content seems to be very less with normal distribution and peak at 0.075. Lets look at its impact on quality.
 
 ```{r Chlorides vs. Quality, echo=FALSE}
-qplot(data=wine, quality.factor, chlorides, geom='boxplot') + ylim(0,.15)
+ggplot(aes(quality.factor, chlorides),data = wine) +
+  geom_jitter(alpha=.3) +
+  geom_boxplot(alpha=0.5, color='blue') + 
+  stat_summary(fun.y="mean",geom="point",color="red", shape=8, size=4) +
+  ylim(0,0.15)
 ```
 
 The median seems to be shifting downward from quality 3 to 8. However, there is a huge overlap of interquantile range across all quality grades. Also, the range is narrowing from lower to higher quality. This may also be because of lack data points. 
@@ -196,7 +214,10 @@ qplot(data =wine,free.sulfur.dioxide, binwdith=1) + xlim(0,60) + scale_x_log10(b
 Free sulfur dioxide seems to have bimodal distribution with peaks at 6 and 12. Lets analyze its impact on quality.
 
 ```{r Free Sulfur dioxide, echo=FALSE}
-qplot(data=wine, quality.factor, free.sulfur.dioxide, geom='boxplot') + 
+ggplot(aes(quality.factor, free.sulfur.dioxide),data = wine) +
+  geom_jitter(alpha=.3) +
+  geom_boxplot(alpha=0.5, color='blue') + 
+  stat_summary(fun.y="mean",geom="point",color="red", shape=8, size=4) +
   ylim(0,60)
 ```
 
@@ -233,7 +254,10 @@ qplot(data =wine,total.sulfur.dioxide, binwdith=10) + xlim(0,180) + scale_x_log1
 Total sulfur dioxide seems to have normal distribution in log scale. Lets analyze its impact on quality.
 
 ```{r Total Sulfur dioxide vs. Quality, echo=FALSE}
-qplot(data=wine, quality.factor, total.sulfur.dioxide, geom='boxplot') +
+ggplot(aes(quality.factor, total.sulfur.dioxide),data = wine) +
+  geom_jitter(alpha=.3) +
+  geom_boxplot(alpha=0.5, color='blue') + 
+  stat_summary(fun.y="mean",geom="point",color="red", shape=8, size=4) +
   ylim(0,180)
 ```
 
@@ -259,7 +283,10 @@ Density seems to have normal distribution. Lets analyze its impact on quality.
 
 
 ```{r Density vs. Quality, echo=FALSE}
-qplot(data=wine, quality.factor, density, geom='boxplot')
+ggplot(aes(quality.factor, density),data = wine) +
+  geom_jitter(alpha=.3) +
+  geom_boxplot(alpha=0.5, color='blue') + 
+  stat_summary(fun.y="mean",geom="point",color="red", shape=8, size=4) 
 ```
 
 From the above boxplots, lower the density seems to be better but there is huge overlap of datapoints for all quality grades. Lets look at the histogram.
@@ -283,7 +310,11 @@ pH seems to have normal distribution with peak at 3.3. Lets analyze its impact o
 
 
 ```{r pH vs. Quality, echo=FALSE}
-qplot(data=wine, quality.factor, pH, geom='boxplot') + ylim(2.5,4)
+ggplot(aes(quality.factor, pH),data = wine) +
+  geom_jitter(alpha=.3) +
+  geom_boxplot(alpha=0.5, color='blue') + 
+  stat_summary(fun.y="mean",geom="point",color="red", shape=8, size=4) +
+  ylim(2.5,4)
 ```
 
 There is significant overlap of pH concentrations on all quality grades. However, there seems to be a small downward trend in median pH content. Looks like lower pH seems to relate to higher quality. Specificially, 3-3.5 seems to be a good range for quality wine.
@@ -307,7 +338,11 @@ Sulphates seems to have right tailed distribution. Lets analyze its impact on qu
 
 
 ```{r, echo=FALSE}
-qplot(data=wine, quality.factor, sulphates, geom='boxplot') + ylim(0.25, 1.2)
+ggplot(aes(quality.factor, sulphates),data = wine) +
+  geom_jitter(alpha=.3) +
+  geom_boxplot(alpha=0.5, color='blue') + 
+  stat_summary(fun.y="mean",geom="point",color="red", shape=8, size=4) +
+  ylim(0.25, 1.2)
 ```
 
 Sulphates contribute to SO2 which acts as antimicroial and antioxidant. However, SO2 itself was identified as having no significant impact on the quality. On the contrary to the SO2 impact, higher Sulphates concentrations seems to lead to higher quality. Specifically, 0.7-0.8 units seems to be good concentration for quality wine. But can we trust the range from this plot? No, let's look at the histogram.
@@ -332,9 +367,12 @@ qplot(data =wine,alcohol, binwdith=0.1) + xlim(8,14)
 
 Alcohol content in wine in this dataset seems to have right tailed distribution. Lets analyze its impact on quality.
 
-
-```{r Alcohol vs. Quality, echo=FALSE}
-qplot(data=wine, quality.factor, alcohol, geom='boxplot') + ylim(8,14)
+```{r, echo=FALSE}
+ggplot(aes(quality.factor, alcohol),data = wine) +
+  geom_jitter(alpha=.3) +
+  geom_boxplot(alpha=0.5, color='blue') + 
+  ylim(8,14) +
+  stat_summary(fun.y="mean",geom="point",color="red", shape=8, size=4)
 ```
 
 From the above graphs, higher alcohol percent seems to be good for wine. There is quite discernible growth in quality with increasing medians in alcohol content (except for quality 5, could be affected by other variables)
@@ -610,6 +648,13 @@ From the pairwise investigation, the following are observed.
 ## Fixed acidity vs citric acid vs quality
 From the above observations, lets explore related varibles.
 ```{r Fixed acidity vs citric acid Facet wrap by quality, echo=FALSE}
+ggplot(aes(fixed.acidity, citric.acid, color = quality.factor), 
+       data = wine) +
+  geom_point(alpha = 0.8, size = 1) +
+  geom_smooth(method = "lm", se = FALSE,size=1)  +
+  scale_color_brewer(type='seq',
+                   guide=guide_legend(title='Quality'))
+
 ggplot(data = wine, aes(fixed.acidity, citric.acid)) + 
   geom_point(alpha=0.1) + facet_wrap(~quality.factor) + 
   geom_smooth(method='lm')
@@ -623,11 +668,18 @@ ggplot(data=wine, aes(quality, citric.acid/fixed.acidity)) +
   geom_smooth(method='lm')
 ```
 
-The above graph shows that although the ratio is increasing with quality, the ratio is very similar and changes marginally between quality. 
+The above graphs shows that although the ratio is increasing with quality, the ratio is very similar and changes marginally between quality. 
 
 
 ## Fixed.acidity vs density vs quality
 ```{r, echo=FALSE}
+ggplot(aes(fixed.acidity, density, color = quality.factor), 
+       data = wine) +
+  geom_point(alpha = 0.8, size = 1) +
+  geom_smooth(method = "lm", se = FALSE,size=1)  +
+  scale_color_brewer(type='seq',
+                   guide=guide_legend(title='Quality'))
+
 ggplot(data=wine, aes(fixed.acidity, density)) + 
   geom_point(alpha=0.1) + 
   facet_wrap(~quality.factor) + 
@@ -638,15 +690,30 @@ Similarly, fixed.acidity and density seems to have a linear relationship but the
 
 ## Fixed.acidity vs volatile.acidity vs quality
 ```{r, echo=FALSE}
+ggplot(aes(fixed.acidity, volatile.acidity, color = quality.factor), 
+       data = wine) +
+  geom_point(alpha = 0.8, size = 1) +
+  geom_smooth(method = "lm", se = FALSE,size=1)  +
+  scale_color_brewer(type='seq',
+                   guide=guide_legend(title='Quality'))
+
 ggplot(data=wine, aes(fixed.acidity, volatile.acidity)) + 
   geom_point(alpha=0.1) + 
-  facet_wrap(~quality.factor)
+  facet_wrap(~quality.factor) +
+  geom_smooth(method='lm')
 ```
 
 No discernible relationship between fixed.acidity and volatile.acidity.
 
 ## Fixed.acidity vs pH vs quality
 ```{r, echo=FALSE}
+ggplot(aes(fixed.acidity, pH, color = quality.factor), 
+       data = wine) +
+  geom_point(alpha = 0.8, size = 1) +
+  geom_smooth(method = "lm", se = FALSE,size=1)  +
+  scale_color_brewer(type='seq',
+                   guide=guide_legend(title='Quality'))
+
 ggplot(data=wine, aes(fixed.acidity, pH)) + 
   geom_point(alpha=0.1) + facet_wrap(~quality.factor) + 
   geom_smooth(method='lm')
@@ -658,6 +725,13 @@ Although negative, fixed.acidity and pH seem to have a linear relationship. But 
 Another relation observed from above was that alcohol and density were kind of complementary variables. It'd be good to investigate how the difference would corelate with quality.
 
 ```{r, echo=FALSE}
+ggplot(aes(alcohol, density, color = quality.factor), 
+       data = wine) +
+  geom_point(alpha = 0.8, size = 1) +
+  geom_smooth(method = "lm", se = FALSE,size=1)  +
+  scale_color_brewer(type='seq',
+                   guide=guide_legend(title='Quality'))
+
 ggplot(data=wine, aes(alcohol, density)) + 
   geom_point(alpha=0.1) +facet_wrap(~quality.factor) + 
   geom_smooth(method='lm')
